@@ -1,4 +1,11 @@
-# added better support for OpenBSD.
+#! /bin/sh
+
+# This is Richo Healey's battery monitor.
+# https://github.com/richo
+#
+# <netstar@gmail.com> "A. Poole": 
+#   Added support for OpenBSD.
+#   Added more precision for OpenBSD.
 
 RT_FULL=♥
 HEART_EMPTY=♡
@@ -31,13 +38,19 @@ linux_get_bat ()
 
 openbsd_get_bat ()
 {
-    battery_full=$(echo `sysctl -n hw.sensors.acpibat0.raw0 | cut -d ' ' -f 1`)
-    if [ $battery_full != 0 ]; then
-    	bf=$(echo `sysctl -n hw.sensors.acpibat0.amphour0 |  cut -d ' ' -f 1`)
-   	 bn=$(echo `sysctl -n hw.sensors.acpibat0.amphour3 |  cut -d ' ' -f 1`)
-    	echo "(($bn * 100) / $bf)" | bc -l | awk -F '.' '{ print $1 }';
+    bf=$(echo `sysctl -n hw.sensors.acpibat0.amphour0 | cut -d ' ' -f 1`);
+    bn=$(echo `sysctl -n hw.sensors.acpibat0.amphour3 | cut -d ' ' -f 1`);
+    perc=$(echo "(($bn * 100) / $bf )" | bc -l | awk -F '.' '{ print $1 }')
+
+    battery_status=$(echo `sysctl -n hw.sensors.acpibat0.raw0 | cut -d ' ' -f 1`)
+    if [ $battery_status == 2 ]; then
+	echo "charging at $perc";
+    elif [ $battery_status == 1 ]; then
+	echo "discharging at $perc"
+    elif [ $battery_status == 0 ]; then
+	echo "charged at 100";
     else
-	echo 100
+	echo "NO BATTERY";
     fi
 }
 
