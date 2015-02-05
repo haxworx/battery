@@ -3,9 +3,10 @@
 # This is Richo Healey's battery monitor.
 # https://github.com/richo
 #
-# <netstar@gmail.com> "A. Poole": 
+# <netstar@gmail.com> "A. Poole":
 #   Added support for OpenBSD.
 #   Added more precision for OpenBSD.
+#   Fixed a bug with buggy results (ACPI??)
 
 RT_FULL=♥
 HEART_EMPTY=♡
@@ -40,7 +41,13 @@ openbsd_get_bat ()
 {
     bf=$(echo `sysctl -n hw.sensors.acpibat0.amphour0 | cut -d ' ' -f 1`);
     bn=$(echo `sysctl -n hw.sensors.acpibat0.amphour3 | cut -d ' ' -f 1`);
-    perc=$(echo "(($bn * 100) / $bf )" | bc -l | awk -F '.' '{ print $1 }')
+    # Hack for this battery which seems borken!
+
+    if [ $bn > $bf ]; then
+        perc=$(echo "(($bn * 100) / $bf )" | bc -l | awk -F '.' '{ print $1 }')
+    else
+	perc=100
+    fi
 
     battery_status=$(echo `sysctl -n hw.sensors.acpibat0.raw0 | cut -d ' ' -f 1`)
     if [ $battery_status == 2 ]; then
