@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# This is Richo Healey's battery monitor.
+# his is Richo Healey's battery monitor.
 # https://github.com/richo
 #
 # <netstar@gmail.com> "A. Poole":
@@ -41,15 +41,14 @@ openbsd_get_bat ()
 {
     bf=$(echo `sysctl -n hw.sensors.acpibat0.amphour0 | cut -d ' ' -f 1`);
     bn=$(echo `sysctl -n hw.sensors.acpibat0.amphour3 | cut -d ' ' -f 1`);
-    # Hack for this battery which seems borken!
 
-    if [ $bn > $bf ]; then
-        perc=$(echo "(($bn * 100) / $bf )" | bc -l | awk -F '.' '{ print $1 }')
-    else
-	perc=100
-    fi
+    # Hack for this battery which seems borken!
+    # fixes crazy battery responses!
+
+    perc=$(echo "(($bn * 100) / $bf )" | bc -l | awk -F '.' '{ print $1 }')
 
     battery_status=$(echo `sysctl -n hw.sensors.acpibat0.raw0 | cut -d ' ' -f 1`)
+
     if [ $battery_status == 2 ]; then
 	echo "charging at $perc";
     elif [ $battery_status == 1 ]; then
@@ -57,7 +56,7 @@ openbsd_get_bat ()
     elif [ $battery_status == 0 ]; then
 	echo "charged at 100";
     else
-	echo "NO BATTERY";
+	echo "no battery";
     fi
 }
 
