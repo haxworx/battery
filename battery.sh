@@ -1,3 +1,5 @@
+# added better support for OpenBSD.
+
 RT_FULL=♥
 HEART_EMPTY=♡
 [ -z "$NUM_HEARTS" ] &&
@@ -29,9 +31,14 @@ linux_get_bat ()
 
 openbsd_get_bat ()
 {
-    bf=$(echo `sysctl -n hw.sensors.acpibat0.amphour0 |  cut -d ' ' -f 1`)
-    bn=$(echo `sysctl -n hw.sensors.acpibat0.amphour3 |  cut -d ' ' -f 1`)
-    echo "(($bn * 100) / $bf)" | bc -l | awk -F '.' '{ print $1 }';
+    battery_full=$(echo `sysctl -n hw.sensors.acpibat0.raw0 | cut -d ' ' -f 1`)
+    if [ $battery_full != 0 ]; then
+    	bf=$(echo `sysctl -n hw.sensors.acpibat0.amphour0 |  cut -d ' ' -f 1`)
+   	 bn=$(echo `sysctl -n hw.sensors.acpibat0.amphour3 |  cut -d ' ' -f 1`)
+    	echo "(($bn * 100) / $bf)" | bc -l | awk -F '.' '{ print $1 }';
+    else
+	echo 100
+    fi
 }
 
 freebsd_get_bat ()
