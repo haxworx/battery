@@ -74,6 +74,9 @@ battery_status()
 case $(uname -s) in
     "Linux")
         BATPATH=${BATPATH:-/sys/class/power_supply/BAT0}
+        if [ ! -e $BATPATH ]; then
+                BATPATH="/sys/class/power_supply/BAT1";
+        fi
         STATUS=$BATPATH/status
         [ "$1" = `cat $STATUS` ] || [ "$1" = "" ] || return 0
         if [ -f "$BATPATH/energy_full" ]; then
